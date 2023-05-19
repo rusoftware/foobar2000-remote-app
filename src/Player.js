@@ -71,23 +71,6 @@ const Player = ({
           </div>
         </div>
       </div>
-      
-      {/*
-      { selectedPlaylist }
-      <button className='library' onClick={() => handlePageChange('explorer')}><GiMusicSpell size={26} /></button>
-      <div>
-        <ul>
-          {listas.map(liitem => (
-            <li onClick={() => changePlaylist(liitem.id)} key={liitem.id}>{liitem.title}</li>
-          ))}
-        </ul>
-        <ul>
-          {canciones.map((track, index) => (
-            <li onClick={() => playSong(index)} key={index}>{track.columns[0]} - {track.columns[3]}</li>
-          ))}
-        </ul>
-      </div>
-      */}
     </section>
   );
 };

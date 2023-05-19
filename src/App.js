@@ -39,8 +39,12 @@ function App() {
         const track = data.player.activeItem.index;
         const playingState = data.player.playbackState;
 
-        if (track !== currentSong.track) {
-          setCurrentSong({ track: track, playlistId: data.player.activeItem.playlistId });
+        if (track !== currentSong.track || currentSong.playlistId !== selectedPlaylist) {
+          setCurrentSong(prevSong => ({
+            ...prevSong,
+            track: track,
+            playlistId: data.player.activeItem.playlistId
+          }));
           getSongData();
         }
 
@@ -56,7 +60,7 @@ function App() {
     return () => {
       clearInterval(interval);
     };
-  }, [currentSong.track]);
+  }, [currentSong.track, selectedPlaylist, currentSong.playlistId]);
 
   useEffect(() => {
     const getCoverArt = async () => {
@@ -142,7 +146,8 @@ function App() {
       });
       const data = await response.json();
 
-      setCurrentSong({
+      setCurrentSong(prevSong => ({
+        ...prevSong,
         track: data.player.activeItem.index,
         playlistId: data.player.activeItem.playlistId,
         title: data.player.activeItem.columns[2],
@@ -150,7 +155,7 @@ function App() {
         year: data.player.activeItem.columns[3],
         artist: data.player.activeItem.columns[0],
         duration: data.player.activeItem.duration
-      });
+      }));
 
       setSongPosition(data.player.activeItem.position);
     } catch (error) {
