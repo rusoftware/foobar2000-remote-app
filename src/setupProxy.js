@@ -2,9 +2,9 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function(app) {
   app.use(
-    '/foobar2000',
+    '/api',
     createProxyMiddleware({
-      target: 'http://localhost:8880',
+      target: 'http://192.168.100.9:8880',
       changeOrigin: true,
     })
   );
