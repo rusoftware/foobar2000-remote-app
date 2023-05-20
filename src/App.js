@@ -122,7 +122,7 @@ function App() {
       try {
         const response = await fetch(`/api/browser/entries?path=${currentPath || rootMusicPath}`);
         const data = await response.json();
-        const folders = data.entries.filter(entry => entry.type === 'D');
+        const folders = data.entries.filter(entry => entry.type === 'D' || entry.type === 'F');
         setFolders(folders);
       } catch (error) {
         console.error('failed fetching folders', error);
@@ -215,6 +215,7 @@ function App() {
           setCurrentPath={setCurrentPath}
           currentPath={currentPath}
           handlePageChange={handlePageChange}
+          rootMusicPath={rootMusicPath}
         />
       )}
     </div>

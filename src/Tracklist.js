@@ -1,6 +1,6 @@
 import React from 'react';
 import './styles/tracklist.scss';
-import { GiMusicSpell } from 'react-icons/gi'
+import { BsFolderFill } from 'react-icons/bs'
 
 
 const Tracklist = ({
@@ -19,7 +19,7 @@ const Tracklist = ({
   return (
     <section className='tracklist-section'>
       { selectedPlaylist }
-      <button className='library' onClick={() => handlePageChange('explorer')}><GiMusicSpell size={26} /></button>
+      <BsFolderFill size={26} onClick={() => handlePageChange('explorer')} />
       <div>
         <ul>
           {playlists.map(liitem => (
