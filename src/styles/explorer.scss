@@ -28,7 +28,7 @@
       margin-top: .52em;
       
       li {
-        display: block;
+        display: flex;
         border-bottom: solid 1px #ebebeb;
         margin: 8px 0;
         cursor: pointer;
@@ -36,8 +36,13 @@
         height: 2em;
         font-size: 1em;
 
-        &:hover {
-          text-decoration: underline;
+        span.name {
+          flex: 7;
+          overflow: hidden;
+        }
+        span.controls {
+          flex: 1;
+          text-align: right;
         }
       }
     }

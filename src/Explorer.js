@@ -2,8 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './styles/explorer.scss';
 import { BsFolderFill, BsChevronLeft } from 'react-icons/bs';
 import { FaArrowLeft } from 'react-icons/fa';
+import { MdPlaylistPlay, MdPlaylistAdd } from 'react-icons/md'
 
-const Explorer = ({ handlePageChange, currentPath, folders, setCurrentPath, rootMusicPath }) => {
+const Explorer = ({
+  handlePageChange,
+  currentPath,
+  folders,
+  setCurrentPath,
+  rootMusicPath,
+  playlistItemsAdd }) => {
   const [isRoot, setIsRoot] = useState(true);
 
   useEffect(() => {
@@ -71,21 +78,31 @@ const Explorer = ({ handlePageChange, currentPath, folders, setCurrentPath, root
         {!isRoot &&
           <>
             <h2>Albums</h2>
+            <pre>{ currentPath }</pre>
             <FaArrowLeft onClick={handleUpClick} size={24} style={{marginTop: '.83em'}} />
 
             <ul className='artists-list'>
               {folders.map((folder) => (
-                <li key={folder.path} onClick={() => handleFolderClick(folder.path)}>
-                  {folder.name}
-                </li>
+                <React.Fragment key={folder.path}>
+                  {folder.type === 'D' && (
+                    <li>
+                      <span className='name' onClick={() => handleFolderClick(folder.path)}>{folder.name}</span>
+                      <span className='controls'><MdPlaylistPlay size={24} onClick={(ev) => playlistItemsAdd(ev, folder.path, true, true)} /></span>
+                    </li>
+                  )}
+
+                  {folder.type === 'F' && (
+                    <li>
+                      <span className='name' onClick={(ev) => playlistItemsAdd(ev, folder.path, true, true)}>{folder.name}</span>
+                      <span className='controls'><MdPlaylistAdd size={24} onClick={(ev) => playlistItemsAdd(ev, folder.path, false, false)} /></span>
+                    </li>
+                  )}
+                </React.Fragment>
               ))}
             </ul>
           </>
         }
       </div>
-
-      <pre style={{marginTop: '6em'}}>{currentPath} - {rootMusicPath}</pre>
-      {isRoot && <div>IS ROOT</div>}
     </div>
   );
 };

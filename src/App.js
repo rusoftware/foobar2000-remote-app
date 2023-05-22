@@ -21,7 +21,7 @@ function App() {
     duration: 0
   });
   const [albumCover, setAlbumCover] = useState('');
-  const [selectedPlaylist, setSelectedPlaylist] = useState('p1');
+  const [selectedPlaylist, setSelectedPlaylist] = useState('p5');
   const [playlists, setPlaylists] = useState([]);
   const [canciones, setCanciones] = useState([]);
 
@@ -39,7 +39,7 @@ function App() {
         const track = data.player.activeItem.index;
         const playingState = data.player.playbackState;
 
-        if (track !== currentSong.track || currentSong.playlistId !== selectedPlaylist) {
+        if (track !== currentSong.track || currentSong.playlistId !== selectedPlaylist || currentSong.title) {
           setCurrentSong(prevSong => ({
             ...prevSong,
             track: track,
@@ -60,7 +60,7 @@ function App() {
     return () => {
       clearInterval(interval);
     };
-  }, [currentSong.track, selectedPlaylist, currentSong.playlistId]);
+  }, [currentSong.track, selectedPlaylist, currentSong.playlistId, currentSong.title]);
 
   useEffect(() => {
     const getCoverArt = async () => {
@@ -118,11 +118,35 @@ function App() {
 
   useEffect(() => {
     const fetchFolders = async () => {
+      const excludedFolders = ['MusicBee'];
+      const includedExtensions = ['mp3', 'flac'];
       if (currentPath || rootMusicPath)
       try {
         const response = await fetch(`/api/browser/entries?path=${currentPath || rootMusicPath}`);
         const data = await response.json();
-        const folders = data.entries.filter(entry => entry.type === 'D' || entry.type === 'F');
+        //const folders = data.entries.filter(entry => entry.name !== 'MusicBee' && (entry.type === 'D' || entry.type === 'F'));
+
+        const folders = data.entries.filter(entry => {
+          const isExcluded = excludedFolders.includes(entry.name);
+          const isDirectory = entry.type === 'D';
+          const isFile = entry.type === 'F';
+
+          if (isExcluded) {
+            return false;
+          }
+
+          if (isDirectory) {
+            return true;
+          }
+
+          if (isFile) {
+            const fileExtension = entry.name.split('.').pop().toLowerCase();
+            return includedExtensions.includes(fileExtension);
+          }
+
+          return false;
+        });
+
         setFolders(folders);
       } catch (error) {
         console.error('failed fetching folders', error);
@@ -187,6 +211,20 @@ function App() {
     setPage(newPage);
   };
 
+  const playlistItemsAdd = async (ev, folder, shouldPlay, shouldReplace) => {
+    try {
+      await fetch(`/api/playlists/${selectedPlaylist}/items/add`, {
+        method: 'POST',
+        body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
   return (
     <div className="container">
       {page === 'player' && (
@@ -216,6 +254,7 @@ function App() {
           currentPath={currentPath}
           handlePageChange={handlePageChange}
           rootMusicPath={rootMusicPath}
+          playlistItemsAdd={playlistItemsAdd}
         />
       )}
     </div>
