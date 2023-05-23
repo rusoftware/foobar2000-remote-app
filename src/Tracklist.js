@@ -1,14 +1,14 @@
 import React from 'react';
 import './styles/tracklist.scss';
-import { BsFolderFill } from 'react-icons/bs'
-
+import { BsFolderFill } from 'react-icons/bs';
+import { MdOutlinePlaylistRemove } from 'react-icons/md';
 
 const Tracklist = ({
   selectedPlaylist,
   setSelectedPlaylist,
   handlePageChange,
   playlists,
-  canciones,
+  songs,
   playSong
 }) => {
 
@@ -25,10 +25,13 @@ const Tracklist = ({
           {playlists.map(liitem => (
             <li onClick={() => changePlaylist(liitem.id)} key={liitem.id}>{liitem.title}</li>
           ))}
-        </ul>
+          </ul>
         <ul className='tracklist'>
-          {canciones.map((track, index) => (
-            <li onClick={() => playSong(index)} key={index}>{track.columns[0]} - {track.columns[3]}</li>
+          {songs.map((track, index) => (
+            <li onClick={() => playSong(index)} key={index}>
+              <span className='track-name'>{track.columns[0]} - {track.columns[3]}</span>
+              <span className='track-remove'><MdOutlinePlaylistRemove size={24} /></span>
+            </li>
           ))}
         </ul>
       </div>

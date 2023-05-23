@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Player from './Player';
 import Explorer from './Explorer';
 import Tracklist from './Tracklist';
@@ -10,20 +10,26 @@ function App() {
   const [currentPath, setCurrentPath] = useState(null);
   const [folders, setFolders] = useState([]);
   const [playing, setPlaying] = useState('foo');
-  const [songPosition, setSongPosition] = useState('');
   const [currentSong, setCurrentSong] = useState({
-    track: null,
-    playlistId: null,
+    track: -1,
+    playlistId: -1,
     title: '',
     album: '',
     year: '',
     artist: '',
     duration: 0
   });
+  const [songPosition, setSongPosition] = useState(0);
   const [albumCover, setAlbumCover] = useState('');
   const [selectedPlaylist, setSelectedPlaylist] = useState('p5');
   const [playlists, setPlaylists] = useState([]);
-  const [canciones, setCanciones] = useState([]);
+  const [songs, setSongs] = useState([]);
+
+  const currentPositionRef = useRef(songPosition);
+
+  useEffect(() => {
+    currentPositionRef.current = songPosition;
+  }, [songPosition]);
 
   useEffect(() => {
     fetch('/api/browser/roots')
@@ -32,35 +38,35 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const fetchPlaybackStatus = async () => {
-      try {
-        const response = await fetch('api/player');
-        const data = await response.json();
-        const track = data.player.activeItem.index;
-        const playingState = data.player.playbackState;
+    updatePlayerStatus();
+  }, []);
+  
+  useEffect(() => {
+    const timerInterval = 1000;
 
-        if (track !== currentSong.track || currentSong.playlistId !== selectedPlaylist || currentSong.title) {
-          setCurrentSong(prevSong => ({
-            ...prevSong,
-            track: track,
-            playlistId: data.player.activeItem.playlistId
-          }));
-          getSongData();
-        }
-
-        setPlaying(playingState);
-        setSongPosition(data.player.activeItem.position);
-      } catch (error) {
-        console.error(error);
+    const updateProgressBarPosition = () => {
+      if (playing !== 'playing') {
+        clearInterval(interval);
       }
+
+      const currentPosition = currentPositionRef.current;
+
+      if (currentPosition >= currentSong.duration) {
+        updatePlayerStatus();
+        return;
+      }
+
+      const newPosition = currentPosition + timerInterval / 1000;
+      currentPositionRef.current += newPosition;
+      setSongPosition(newPosition);
     };
 
-    const interval = setInterval(fetchPlaybackStatus, 400);
+    const interval = setInterval(updateProgressBarPosition, timerInterval);
 
     return () => {
       clearInterval(interval);
     };
-  }, [currentSong.track, selectedPlaylist, currentSong.playlistId, currentSong.title]);
+  }, [currentSong.track, currentSong.duration, currentSong.position, playing]);
 
   useEffect(() => {
     const getCoverArt = async () => {
@@ -101,20 +107,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const fetchTracks = async() => {
-      try {
-        const response = await fetch(`/api/playlists/${selectedPlaylist}/items/0:100?columns=%25track%25,%25artist%25,%25album%25,%25title%25`);
-        const data = await response.json();
-        //console.log(currentSong);
-        //console.log(data.playlistItems.items);
-        setCanciones(data.playlistItems.items);
-      } catch (error) {
-        console.log('failed fetching tracks', error);
-      }
-    }
-
     fetchTracks();
-  }, [selectedPlaylist]);
+  }, [selectedPlaylist, currentSong.track]);
 
   useEffect(() => {
     const fetchFolders = async () => {
@@ -155,37 +149,54 @@ function App() {
 
     fetchFolders();
   }, [currentPath, rootMusicPath]);
+
+  const updatePlayerStatus = async() => {
+    try {
+      const response = await fetch('/api/player?player=true&columns=%25artist%25,%25album%25,%25title%25,%25year%25', {
+        method: 'GET'
+      });
+      const playerData = await response.json();
+      setPlaying(playerData.player.playbackState);
+      drawSongInfo(playerData);
+      fetchTracks();
+    } catch (e) {
+      console.log("failed updating status");
+    }
+  }
   
   const handlePlayerClick = (e, action) => {
     fetch('/api/player/' + action, {
       method: 'POST'
     })
+    .then(() => updatePlayerStatus())
     .catch(error => console.error(error));
   };
 
-  const getSongData = async () => {
-    try {
-      const response = await fetch('/api/query?player=true&trcolumns=%25artist%25,%25album%25,%25title%25,%25year%25', {
-        method: 'GET'
-      });
-      const data = await response.json();
-
-      setCurrentSong(prevSong => ({
-        ...prevSong,
-        track: data.player.activeItem.index,
-        playlistId: data.player.activeItem.playlistId,
-        title: data.player.activeItem.columns[2],
-        album: data.player.activeItem.columns[1],
-        year: data.player.activeItem.columns[3],
-        artist: data.player.activeItem.columns[0],
-        duration: data.player.activeItem.duration
-      }));
-
-      setSongPosition(data.player.activeItem.position);
-    } catch (error) {
-      console.error(error);
-    }
+  const drawSongInfo = async(data) => {
+    setSongPosition(data.player.activeItem.position);
+    setCurrentSong(prevSong => ({
+      ...prevSong,
+      track: data.player.activeItem.index,
+      playlistId: data.player.activeItem.playlistId,
+      title: data.player.activeItem.columns[2],
+      album: data.player.activeItem.columns[1],
+      year: data.player.activeItem.columns[3],
+      artist: data.player.activeItem.columns[0],
+      duration: data.player.activeItem.duration
+    }));
   };
+
+  const fetchTracks = async() => {
+    try {
+      const response = await fetch(`/api/playlists/${selectedPlaylist}/items/0:100?columns=%25track%25,%25artist%25,%25album%25,%25title%25`);
+      const data = await response.json();
+      //console.log(selectedPlaylist, currentSong);
+      //console.log(data.playlistItems.items);
+      setSongs(data.playlistItems.items);
+    } catch (error) {
+      console.log('failed fetching tracks', error);
+    }
+  }
 
   const updateSongPosition = async (newPosition) => {
     fetch('api/player', {
@@ -194,14 +205,16 @@ function App() {
       headers: {
         'Content-Type': 'application/json',
       },
-    });
+    })
+    .then(() => setSongPosition(newPosition));
   };
 
   const playSong = async (songId) => {
     try {
       await fetch(`/api/player/play/${selectedPlaylist}/${songId}`, {
         method: 'POST',
-      });
+      })
+      .then(() => updatePlayerStatus());
     } catch (error) {
       console.error('Error:', error);
     }
@@ -219,7 +232,8 @@ function App() {
         headers: {
           'Content-Type': 'application/json'
         }
-      });
+      })
+      .then(() => updatePlayerStatus());
     } catch (error) {
       console.error('Error:', error);
     }
@@ -242,7 +256,7 @@ function App() {
             setSelectedPlaylist={setSelectedPlaylist}
             handlePageChange={handlePageChange}
             playlists={playlists}
-            canciones={canciones}
+            songs={songs}
             playSong={playSong}
           />
         </>
