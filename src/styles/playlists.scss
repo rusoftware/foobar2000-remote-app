@@ -1,0 +1,66 @@
+.playlists-section {
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(45,45,45,.3);
+  overflow: hidden;
+
+  .header {
+    display: flex;
+    height: auto;
+    justify-content: space-between;
+    padding: 1em;
+  }
+  
+  .dropdown {
+    position: relative;
+    //display: inline-block;
+    display: block;
+  }
+  
+  .dropdown-toggle {
+    background-color: #f1f1f1;
+    border: none;
+    color: #333;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .dropdown-toggle:hover {
+    background-color: #ddd;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px 0 0;
+    list-style-type: none;
+    margin: 0;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .dropdown-item {
+    padding: 10px 20px;
+    color: #333;
+    cursor: pointer;
+    
+    &:not(:last-child) {
+      border-bottom: 1px solid #ddd;
+    }
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f9f9f9;
+  }
+
+  .tracklist-container {
+    height: calc(100% - 100px); // 100px is the header + menu height, adapt it if required to avoid cut out items
+    overflow-y: scroll;
+  }
+}

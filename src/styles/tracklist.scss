@@ -4,6 +4,13 @@
     overflow-y: scroll;
     background-color: rgba(45,45,45,.3);
 
+    .playlist-title {
+        text-align: right;
+        padding: 1em 2em;
+        font-size: .8em;
+        background-color: rgba(0, 0, 0, .2);
+    }
+
     ul, ul li {
         list-style: none;
         margin: 0;
@@ -24,6 +31,10 @@
         line-height: 2em;
         padding-top: .3em;
         justify-content: space-between;
+
+        &.selected {
+            background-color: rgba(0, 0, 0, .2);
+        }
 
         span.track-name {
             flex: 7 1;

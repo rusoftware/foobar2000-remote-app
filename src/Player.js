@@ -60,7 +60,7 @@ const Player = ({
           </div>
           
           <div className='player-menu'>
-            <BsMusicNoteList size={16} onClick={() => handlePageChange('explorer')} />
+            <BsMusicNoteList size={16} onClick={() => handlePageChange('playlists')} />
 
             <div className='player-buttons'>
               <button className='secondary' onClick={(event) => handlePlayerClick(event, 'previous')}><BsSkipStartFill size={28} /></button>

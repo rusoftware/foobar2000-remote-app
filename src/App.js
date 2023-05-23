@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Player from './Player';
 import Explorer from './Explorer';
 import Tracklist from './Tracklist';
+import Playlists from './Playlists';
 import logo from './logo.svg';
 
 function App() {
@@ -21,7 +22,7 @@ function App() {
   });
   const [songPosition, setSongPosition] = useState(0);
   const [albumCover, setAlbumCover] = useState('');
-  const [selectedPlaylist, setSelectedPlaylist] = useState('p5');
+  const [selectedPlaylist, setSelectedPlaylist] = useState('p4');
   const [playlists, setPlaylists] = useState([]);
   const [songs, setSongs] = useState([]);
 
@@ -148,6 +149,8 @@ function App() {
         clearInterval(interval);
       }
 
+      //console.log(currentSong);
+
       const currentPosition = currentPositionRef.current;
 
       if (currentPosition >= currentSong.duration) {
@@ -270,11 +273,11 @@ function App() {
           />
           <Tracklist
             selectedPlaylist={selectedPlaylist}
-            setSelectedPlaylist={setSelectedPlaylist}
             playlists={playlists}
             songs={songs}
             playSong={playSong}
             playlistItemsRemove={playlistItemsRemove}
+            currentSong={currentSong}
           />
         </>
       )}
@@ -286,6 +289,16 @@ function App() {
           handlePageChange={handlePageChange}
           rootMusicPath={rootMusicPath}
           playlistItemsAdd={playlistItemsAdd}
+        />
+      )}
+      {page === 'playlists' && (
+        <Playlists
+          handlePageChange={handlePageChange}
+          selectedPlaylist={selectedPlaylist}
+          setSelectedPlaylist={setSelectedPlaylist}
+          playlists={playlists}
+          songs={songs}
+          playSong={playSong}
         />
       )}
     </div>

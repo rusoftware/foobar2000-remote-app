@@ -4,29 +4,22 @@ import { MdOutlinePlaylistRemove } from 'react-icons/md';
 
 const Tracklist = ({
   selectedPlaylist,
-  setSelectedPlaylist,
   playlists,
   songs,
   playSong,
-  playlistItemsRemove
+  playlistItemsRemove,
+  currentSong
 }) => {
 
-  const changePlaylist = (id) => {
-    setSelectedPlaylist(id);
-  }
-  
   return (
     <section className='tracklist-section'>
-      { selectedPlaylist }
+      <div className='playlist-title'>
+        from {selectedPlaylist ? playlists.find((currentPlaylist) => currentPlaylist.id === selectedPlaylist)?.title : 'Seleccionar opción'}
+      </div>
       <div>
-        <ul>
-          {playlists.map(liitem => (
-            <li onClick={() => changePlaylist(liitem.id)} key={liitem.id}>{liitem.title}</li>
-          ))}
-          </ul>
         <ul className='tracklist'>
           {songs.map((track, index) => (
-            <li>
+            <li className={`${index === currentSong.track ? 'selected' : ''}`} key={index}>
               <span className='track-name' onClick={() => playSong(index)} key={index}>{track.columns[0]} - {track.columns[3]}</span>
               <span className='track-remove'><MdOutlinePlaylistRemove size={24} onClick={(ev) => playlistItemsRemove(index)} /></span>
             </li>
