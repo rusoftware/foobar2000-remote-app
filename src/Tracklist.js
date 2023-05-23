@@ -7,7 +7,8 @@ const Tracklist = ({
   setSelectedPlaylist,
   playlists,
   songs,
-  playSong
+  playSong,
+  playlistItemsRemove
 }) => {
 
   const changePlaylist = (id) => {
@@ -25,9 +26,9 @@ const Tracklist = ({
           </ul>
         <ul className='tracklist'>
           {songs.map((track, index) => (
-            <li onClick={() => playSong(index)} key={index}>
-              <span className='track-name'>{track.columns[0]} - {track.columns[3]}</span>
-              <span className='track-remove'><MdOutlinePlaylistRemove size={24} /></span>
+            <li>
+              <span className='track-name' onClick={() => playSong(index)} key={index}>{track.columns[0]} - {track.columns[3]}</span>
+              <span className='track-remove'><MdOutlinePlaylistRemove size={24} onClick={(ev) => playlistItemsRemove(index)} /></span>
             </li>
           ))}
         </ul>

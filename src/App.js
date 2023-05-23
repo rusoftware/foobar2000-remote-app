@@ -114,7 +114,22 @@ function App() {
     } catch (error) {
       console.error('Error:', error);
     }
-  }
+  };
+
+  const playlistItemsRemove = async (path) => {
+    try {
+      await fetch(`/api/playlists/${selectedPlaylist}/items/remove`, {
+        method: 'POST',
+        body: JSON.stringify({items: [path]}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(() => updatePlayerStatus());
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   // secondaryEffects
   useEffect(() => {
@@ -259,6 +274,7 @@ function App() {
             playlists={playlists}
             songs={songs}
             playSong={playSong}
+            playlistItemsRemove={playlistItemsRemove}
           />
         </>
       )}
