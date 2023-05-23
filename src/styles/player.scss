@@ -55,46 +55,45 @@
     .player-controls {
       width: 100%;
 
-      .player-buttons {
+      .player-menu {
         position: relative;
         display: flex;
         align-items: center;
-        justify-content: center;
-      }
+        justify-content: space-between;
+        width: 86%;
+        margin: 0 auto;
 
-      button.main {
-        width: 60px;
-        height: 60px;
-        border: solid 1px #ebebeb;
-        background-color: transparent;
-        border-radius: 50%;
-        margin: 0 32px;
+        .player-buttons {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
-        .player-icons {
-          color: #ebebeb;
+          button.main {
+            width: 60px;
+            height: 60px;
+            border: solid 1px #ebebeb;
+            background-color: transparent;
+            border-radius: 50%;
+            margin: 0 32px;
+    
+            .player-icons {
+              color: #ebebeb;
+            }
+          }
+    
+          button.secondary {
+            background-color: transparent;
+            border: 0;
+    
+            > * {
+              color: #ebebeb;
+            }
+          }
         }
       }
 
-      button.secondary {
-        background-color: transparent;
-        border: 0;
-
-        > * {
-          color: #ebebeb;
-        }
-      }
-
-      button.library {
-        width: 24px;
-        height: 24px;
-        background: none;
-        border: none;
-        color: #ebebeb;
-        position: absolute;
-        bottom: 6px;
-        right: 22px;
-      }
-
+      
       // CUSTOMIZE DE INPUT RANGE
       .progress-bar {
         margin: 30px auto;

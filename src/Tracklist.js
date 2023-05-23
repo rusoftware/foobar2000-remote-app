@@ -1,12 +1,10 @@
 import React from 'react';
 import './styles/tracklist.scss';
-import { BsFolderFill } from 'react-icons/bs';
 import { MdOutlinePlaylistRemove } from 'react-icons/md';
 
 const Tracklist = ({
   selectedPlaylist,
   setSelectedPlaylist,
-  handlePageChange,
   playlists,
   songs,
   playSong
@@ -19,7 +17,6 @@ const Tracklist = ({
   return (
     <section className='tracklist-section'>
       { selectedPlaylist }
-      <BsFolderFill size={26} onClick={() => handlePageChange('explorer')} />
       <div>
         <ul>
           {playlists.map(liitem => (

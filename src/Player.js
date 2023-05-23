@@ -1,12 +1,13 @@
 import React from 'react';
 import './styles/player.scss';
-import { BsPause, BsFillPlayFill, BsSkipEndFill, BsSkipStartFill } from 'react-icons/bs';
+import { BsPause, BsFillPlayFill, BsSkipEndFill, BsSkipStartFill, BsFolderFill, BsMusicNoteList } from 'react-icons/bs';
 
 const Player = ({
   albumCover,
   currentSong,
   songPosition,
   playing,
+  handlePageChange,
   handlePlayerClick,
   updateSongPosition
 }) => {
@@ -58,8 +59,11 @@ const Player = ({
             </div>
           </div>
           
-          <div className='player-buttons'>
-            <button className='secondary' onClick={(event) => handlePlayerClick(event, 'previous')}><BsSkipStartFill size={28} /></button>
+          <div className='player-menu'>
+            <BsMusicNoteList size={16} onClick={() => handlePageChange('explorer')} />
+
+            <div className='player-buttons'>
+              <button className='secondary' onClick={(event) => handlePlayerClick(event, 'previous')}><BsSkipStartFill size={28} /></button>
             {playing === 'stopped' ? (
               <button className='main play' onClick={(event) => handlePlayerClick(event, 'play')}><BsFillPlayFill size={50} className='player-icons' /></button>
             ) : (
@@ -68,6 +72,8 @@ const Player = ({
               </button>
             )}
             <button className='secondary' onClick={(event) => handlePlayerClick(event, 'next')}><BsSkipEndFill size={28} /></button>
+            </div>
+            <BsFolderFill size={16} onClick={() => handlePageChange('explorer')} />
           </div>
         </div>
       </div>
