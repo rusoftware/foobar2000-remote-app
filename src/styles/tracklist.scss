@@ -24,12 +24,11 @@
         display: flex;
         flex-direction: row;
         width: calc(100% - 1em);
-        padding: 0 .5em;
+        padding: .5em .5em .2em;
         border: solid 1px rgba(255,255,255,.1);
         border-width: 1px 0;
         text-align: left;
         line-height: 2em;
-        padding-top: .3em;
         justify-content: space-between;
 
         &.selected {
@@ -39,7 +38,12 @@
         span.track-name {
             flex: 7 1;
             overflow: hidden;
+            line-height: 1.2em;
         }
+        span.track-info {
+            font-size: .7em;
+        }
+
         span.track-remove {
             flex: 1 1;
             text-align: center;

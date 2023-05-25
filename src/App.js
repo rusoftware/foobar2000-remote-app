@@ -4,6 +4,7 @@ import Explorer from './Explorer';
 import Tracklist from './Tracklist';
 import Playlists from './Playlists';
 import logo from './logo.svg';
+import placeholderImg from './img/no-cover.jpeg';
 
 function App() {
   const [page, setPage] = useState('player');
@@ -22,9 +23,10 @@ function App() {
   });
   const [songPosition, setSongPosition] = useState(0);
   const [albumCover, setAlbumCover] = useState('');
-  const [selectedPlaylist, setSelectedPlaylist] = useState('p4');
+  const [selectedPlaylist, setSelectedPlaylist] = useState('');
   const [playlists, setPlaylists] = useState([]);
-  const [songs, setSongs] = useState([]);
+  const [selectedPlaylistSongs, setSelectedPlaylistSongs] = useState([]);
+  const [tracklistsSongs, setTracklistsSongs] = useState([]);
 
   const currentPositionRef = useRef(songPosition);
 
@@ -51,12 +53,50 @@ function App() {
   };
 
   const fetchTracks = useCallback(async() => {
+    if (selectedPlaylist !== '')
     try {
-      const response = await fetch(`/api/playlists/${selectedPlaylist}/items/0:100?columns=%25track%25,%25artist%25,%25album%25,%25title%25`);
+      const response = await fetch(`/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
       const data = await response.json();
-      //console.log(selectedPlaylist, currentSong);
-      //console.log(data.playlistItems.items);
-      setSongs(data.playlistItems.items);
+      setTracklistsSongs(data.playlistItems.items);
+
+      const groupedData = [];
+      /*const getMiniArt = async (track) => {
+        try {
+          const response = await fetch(`api/artwork/${selectedPlaylist}/${track}`);
+          if (response.ok) {
+            const coverURL = response.url;
+            return(coverURL);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };*/
+
+      data.playlistItems.items.forEach((item, index) => {
+        const [artist, album, year, trackNumber, songName] = item.columns;
+
+        if (!groupedData[artist]) {
+          groupedData[artist] = {};
+        }
+
+        const albumKey = `${year} - ${album}`;
+
+        if (!groupedData[artist][albumKey]) {
+          groupedData[artist][albumKey] = {
+            coverArt: placeholderImg, // TODO: Implement getMiniArt in Playlists component
+            name: album,
+            year: year,
+            songs: []
+          }
+        }
+
+        groupedData[artist][albumKey]['songs'].push({
+          trackNumber,
+          songName
+        });
+      });
+
+      setSelectedPlaylistSongs(groupedData);
     } catch (error) {
       console.log('failed fetching tracks', error);
     }
@@ -190,11 +230,11 @@ function App() {
           const coverURL = URL.createObjectURL(blob);
           setAlbumCover(coverURL);
         } else {
-          setAlbumCover(logo);
+          setAlbumCover(placeholderImg);
           console.log('Network response was not ok');
         }
       } catch (error) {
-        setAlbumCover(logo);
+        setAlbumCover(placeholderImg);
         console.error('Error:', error);
       }
     };
@@ -274,7 +314,7 @@ function App() {
           <Tracklist
             selectedPlaylist={selectedPlaylist}
             playlists={playlists}
-            songs={songs}
+            tracklistsSongs={tracklistsSongs}
             playSong={playSong}
             playlistItemsRemove={playlistItemsRemove}
             currentSong={currentSong}
@@ -297,7 +337,7 @@ function App() {
           selectedPlaylist={selectedPlaylist}
           setSelectedPlaylist={setSelectedPlaylist}
           playlists={playlists}
-          songs={songs}
+          selectedPlaylistSongs={selectedPlaylistSongs}
           playSong={playSong}
         />
       )}

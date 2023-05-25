@@ -5,7 +5,7 @@ import { MdOutlinePlaylistRemove } from 'react-icons/md';
 const Tracklist = ({
   selectedPlaylist,
   playlists,
-  songs,
+  tracklistsSongs,
   playSong,
   playlistItemsRemove,
   currentSong
@@ -18,9 +18,13 @@ const Tracklist = ({
       </div>
       <div>
         <ul className='tracklist'>
-          {songs.map((track, index) => (
+          {tracklistsSongs.map((track, index) => (
             <li className={`${index === currentSong.track ? 'selected' : ''}`} key={index}>
-              <span className='track-name' onClick={() => playSong(index)} key={index}>{track.columns[0]} - {track.columns[3]}</span>
+              <span className='track-name' onClick={() => playSong(index)} key={index}>
+                {track.columns[3]} - {track.columns[4]}
+                <br />
+                <span className='track-info'>{track.columns[0]} - {track.columns[1]} ({track.columns[2]})</span>
+              </span>
               <span className='track-remove'><MdOutlinePlaylistRemove size={24} onClick={(ev) => playlistItemsRemove(index)} /></span>
             </li>
           ))}
