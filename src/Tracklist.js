@@ -19,7 +19,7 @@ const Tracklist = ({
       <div>
         <ul className='tracklist'>
           {tracklistsSongs.map((track, index) => (
-            <li className={`${index === currentSong.track ? 'selected' : ''}`} key={index}>
+            <li className={`${index === currentSong.track && selectedPlaylist === currentSong.playlistId ? 'selected' : ''}`} key={index}>
               <span className='track-name' onClick={() => playSong(index)} key={index}>
                 {track.columns[3]} - {track.columns[4]}
                 <br />

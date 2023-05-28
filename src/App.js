@@ -7,7 +7,6 @@ import placeholderImg from './img/no-cover.jpeg';
 
 
 // TODOs:
-// - When select a song from a playlist it mark as selected (playing) all the same track-numbers (use indes)
 // - Create a AppPlayer list if not exists and use allways that to play music through the app (others lists are just for navigation, when select one, copy into AppPlayer to play it)
 // - Playlists navigation, add coverart
 // - Explorer navigation, try to display album art and songs (parsed from the *.cue if necessary) inside each artist
