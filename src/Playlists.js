@@ -36,7 +36,7 @@ const Playlists = ({
     }
   }, [selectedPlaylistSongs]);*/
 
-  const getMiniArt = async (track) => {
+  /*const getMiniArt = async (track) => {
     try {
       const response = await fetch(`api/artwork/${selectedPlaylist}/${track}`);
       if (response.ok) {
@@ -46,7 +46,7 @@ const Playlists = ({
     } catch (error) {
       console.error('Error:', error);
     }
-  }
+  }*/
 
   return (
     <div className='playlists-section'>

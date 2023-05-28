@@ -6,7 +6,6 @@ import Playlists from './Playlists';
 import placeholderImg from './img/no-cover.jpeg';
 
 // TODOs:
-// - Create a AppPlayer list if not exists and use allways that to play music through the app (others lists are just for navigation, when select one, copy into AppPlayer to play it)
 // - Playlists navigation, add coverart
 // - Explorer navigation, try to display album art and songs (parsed from the *.cue if necessary) inside each artist
 
@@ -31,10 +30,17 @@ function App() {
   const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylistSongs, setSelectedPlaylistSongs] = useState([]);
   const [tracklistsSongs, setTracklistsSongs] = useState([]);
+  const [showToast, setShowToast] = useState(false);
 
   const currentPositionRef = useRef(songPosition);
 
-  const blockedPlaylists = ['Full Albums', 'Search'];
+  const showToastMessage = (message) => {
+    setShowToast(message);
+
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
 
   const handlePlayerClick = (e, action) => {
     fetch('/api/player/' + action, {
@@ -153,7 +159,7 @@ function App() {
     try {
       const selectedList = playlists.find(playlist => playlist.id === selectedPlaylist);
       if (selectedList && selectedList.blocked) {
-        console.log('no se puede modificar una lista bloqueada');
+        showToastMessage('blocked playlist');
       }
       else {
         await fetch(`/api/playlists/${selectedPlaylist}/items/add`, {
@@ -174,7 +180,7 @@ function App() {
     try {
       const selectedList = playlists.find(playlist => playlist.id === selectedPlaylist);
       if (selectedList && selectedList.blocked) {
-        console.log('no se puede modificar una lista bloqueada');
+        showToastMessage('blocked playlist');
       }
       else {
         await fetch(`/api/playlists/${selectedPlaylist}/items/remove`, {
@@ -260,6 +266,7 @@ function App() {
   }, [currentSong]);
 
   useEffect(() => {
+    const blockedPlaylists = ['Full Albums', 'Search'];
     const fetchPlaylists = async() => {
       try {
         const response = await fetch('api/playlists');
@@ -365,6 +372,8 @@ function App() {
           playSong={playSong}
         />
       )}
+
+      {showToast && <div className="custom-toast">{showToast}</div>}
     </div>
   );
 }
