@@ -5,7 +5,6 @@ import Tracklist from './Tracklist';
 import Playlists from './Playlists';
 import placeholderImg from './img/no-cover.jpeg';
 
-
 // TODOs:
 // - Create a AppPlayer list if not exists and use allways that to play music through the app (others lists are just for navigation, when select one, copy into AppPlayer to play it)
 // - Playlists navigation, add coverart
@@ -34,6 +33,8 @@ function App() {
   const [tracklistsSongs, setTracklistsSongs] = useState([]);
 
   const currentPositionRef = useRef(songPosition);
+
+  const blockedPlaylists = ['Full Albums', 'Search'];
 
   const handlePlayerClick = (e, action) => {
     fetch('/api/player/' + action, {
@@ -116,10 +117,11 @@ function App() {
       const playerData = await response.json();
       setPlaying(playerData.player.playbackState);
       drawSongInfo(playerData);
+      fetchTracks();
     } catch (e) {
       console.log("failed updating status");
     }
-  }, []);
+  }, [fetchTracks]);
 
   const updateSongPosition = async (newPosition) => {
     fetch('api/player', {
@@ -149,14 +151,20 @@ function App() {
 
   const playlistItemsAdd = async (ev, folder, shouldPlay, shouldReplace) => {
     try {
-      await fetch(`/api/playlists/${selectedPlaylist}/items/add`, {
-        method: 'POST',
-        body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(() => updatePlayerStatus());
+      const selectedList = playlists.find(playlist => playlist.id === selectedPlaylist);
+      if (selectedList && selectedList.blocked) {
+        console.log('no se puede modificar una lista bloqueada');
+      }
+      else {
+        await fetch(`/api/playlists/${selectedPlaylist}/items/add`, {
+          method: 'POST',
+          body: JSON.stringify({items: [folder], play: shouldPlay, replace: shouldReplace}),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(() => updatePlayerStatus());
+      }
     } catch (error) {
       console.error('Error:', error);
     }
@@ -164,14 +172,20 @@ function App() {
 
   const playlistItemsRemove = async (path) => {
     try {
-      await fetch(`/api/playlists/${selectedPlaylist}/items/remove`, {
-        method: 'POST',
-        body: JSON.stringify({items: [path]}),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(() => updatePlayerStatus());
+      const selectedList = playlists.find(playlist => playlist.id === selectedPlaylist);
+      if (selectedList && selectedList.blocked) {
+        console.log('no se puede modificar una lista bloqueada');
+      }
+      else {
+        await fetch(`/api/playlists/${selectedPlaylist}/items/remove`, {
+          method: 'POST',
+          body: JSON.stringify({items: [path]}),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(() => updatePlayerStatus());
+      }
     } catch (error) {
       console.error('Error:', error);
     }
@@ -250,7 +264,16 @@ function App() {
       try {
         const response = await fetch('api/playlists');
         const data = await response.json();
-        setPlaylists(data.playlists);
+
+        const updatedPlaylists = data.playlists.map(playlist => {
+          if (blockedPlaylists.includes(playlist.title)) {
+            return { ...playlist, blocked: true };
+          }
+          return playlist;
+        });
+
+        setPlaylists(updatedPlaylists);
+
         const currentPlaylist = data.playlists.find(playlist => playlist.isCurrent);
         setSelectedPlaylist(currentPlaylist.id);
       } catch (error) {
