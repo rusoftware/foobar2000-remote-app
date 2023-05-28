@@ -3,8 +3,14 @@ import Player from './Player';
 import Explorer from './Explorer';
 import Tracklist from './Tracklist';
 import Playlists from './Playlists';
-import logo from './logo.svg';
 import placeholderImg from './img/no-cover.jpeg';
+
+
+// TODOs:
+// - When select a song from a playlist it mark as selected (playing) all the same track-numbers (use indes)
+// - Create a AppPlayer list if not exists and use allways that to play music through the app (others lists are just for navigation, when select one, copy into AppPlayer to play it)
+// - Playlists navigation, add coverart
+// - Explorer navigation, try to display album art and songs (parsed from the *.cue if necessary) inside each artist
 
 function App() {
   const [page, setPage] = useState('player');
@@ -23,7 +29,7 @@ function App() {
   });
   const [songPosition, setSongPosition] = useState(0);
   const [albumCover, setAlbumCover] = useState('');
-  const [selectedPlaylist, setSelectedPlaylist] = useState('');
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylistSongs, setSelectedPlaylistSongs] = useState([]);
   const [tracklistsSongs, setTracklistsSongs] = useState([]);
@@ -53,52 +59,53 @@ function App() {
   };
 
   const fetchTracks = useCallback(async() => {
-    if (selectedPlaylist !== '')
-    try {
-      const response = await fetch(`/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
-      const data = await response.json();
-      setTracklistsSongs(data.playlistItems.items);
+    if (selectedPlaylist) {
+      try {
+        const response = await fetch(`/api/playlists/${selectedPlaylist}/items/0:2000?columns=%25artist%25,%25album%25,%25year%25,%25track%25,%25title%25`);
+        const data = await response.json();
+        setTracklistsSongs(data.playlistItems.items);
 
-      const groupedData = [];
-      /*const getMiniArt = async (track) => {
-        try {
-          const response = await fetch(`api/artwork/${selectedPlaylist}/${track}`);
-          if (response.ok) {
-            const coverURL = response.url;
-            return(coverURL);
+        const groupedData = [];
+        /*const getMiniArt = async (track) => {
+          try {
+            const response = await fetch(`api/artwork/${selectedPlaylist}/${track}`);
+            if (response.ok) {
+              const coverURL = response.url;
+              return(coverURL);
+            }
+          } catch (error) {
+            console.error('Error:', error);
           }
-        } catch (error) {
-          console.error('Error:', error);
-        }
-      };*/
+        };*/
 
-      data.playlistItems.items.forEach((item, index) => {
-        const [artist, album, year, trackNumber, songName] = item.columns;
+        data.playlistItems.items.forEach((item, index) => {
+          const [artist, album, year, trackNumber, songName] = item.columns;
 
-        if (!groupedData[artist]) {
-          groupedData[artist] = {};
-        }
-
-        const albumKey = `${year} - ${album}`;
-
-        if (!groupedData[artist][albumKey]) {
-          groupedData[artist][albumKey] = {
-            coverArt: placeholderImg, // TODO: Implement getMiniArt in Playlists component
-            name: album,
-            year: year,
-            songs: []
+          if (!groupedData[artist]) {
+            groupedData[artist] = {};
           }
-        }
 
-        groupedData[artist][albumKey]['songs'].push({
-          trackNumber,
-          songName
+          const albumKey = `${year} - ${album}`;
+
+          if (!groupedData[artist][albumKey]) {
+            groupedData[artist][albumKey] = {
+              coverArt: placeholderImg, // TODO: getMiniArt(index): Implement getMiniArt in Playlists component
+              name: album,
+              year: year,
+              songs: []
+            }
+          }
+
+          groupedData[artist][albumKey]['songs'].push({
+            trackNumber,
+            songName
+          });
         });
-      });
 
-      setSelectedPlaylistSongs(groupedData);
-    } catch (error) {
-      console.log('failed fetching tracks', error);
+        setSelectedPlaylistSongs(groupedData);
+      } catch (error) {
+        console.log('failed fetching tracks', error);
+      }
     }
   }, [selectedPlaylist]);
 
@@ -110,11 +117,10 @@ function App() {
       const playerData = await response.json();
       setPlaying(playerData.player.playbackState);
       drawSongInfo(playerData);
-      fetchTracks();
     } catch (e) {
       console.log("failed updating status");
     }
-  },[fetchTracks]);
+  }, []);
 
   const updateSongPosition = async (newPosition) => {
     fetch('api/player', {
@@ -188,8 +194,6 @@ function App() {
       if (playing !== 'playing') {
         clearInterval(interval);
       }
-
-      //console.log(currentSong);
 
       const currentPosition = currentPositionRef.current;
 
@@ -266,8 +270,6 @@ function App() {
       try {
         const response = await fetch(`/api/browser/entries?path=${currentPath || rootMusicPath}`);
         const data = await response.json();
-        //const folders = data.entries.filter(entry => entry.name !== 'MusicBee' && (entry.type === 'D' || entry.type === 'F'));
-
         const folders = data.entries.filter(entry => {
           const isExcluded = excludedFolders.includes(entry.name);
           const isDirectory = entry.type === 'D';

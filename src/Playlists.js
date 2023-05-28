@@ -23,8 +23,30 @@ const Playlists = ({
   };
 
   /*useEffect(() => {
-    console.log(playlists);
-  }, [playlists]);*/
+    if (selectedPlaylistSongs) {
+      Object.entries(selectedPlaylistSongs).forEach(([artist, albums]) => {
+        console.log('Artist:', artist);
+        console.log('Albums:', albums);
+        Object.entries(albums).map(([albumKey, albumData]) => {
+          console.log('Album: ', albumData.name);
+          console.log('Cover: ', albumData.coverArt);
+          console.log('Songs: ', albumData.songs[0].trackNumber);
+        });
+      });
+    }
+  }, [selectedPlaylistSongs]);*/
+
+  const getMiniArt = async (track) => {
+    try {
+      const response = await fetch(`api/artwork/${selectedPlaylist}/${track}`);
+      if (response.ok) {
+        const coverURL = response.url;
+        return(coverURL);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
 
   return (
     <div className='playlists-section'>
@@ -60,6 +82,10 @@ const Playlists = ({
         )}
       </div>
       <div className='playlists-container'>
+      <pre style={{
+        maxHeight: '100px',
+        overflowY: 'scroll'
+      }}>{JSON.stringify(selectedPlaylistSongs, null, 2)}</pre>
         {Object.entries(selectedPlaylistSongs).map(([artist, albums]) => (
           <div key={artist}>
             
