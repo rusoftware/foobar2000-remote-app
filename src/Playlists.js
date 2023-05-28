@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './styles/playlists.scss';
+import placeholderImg from './img/no-cover.jpeg';
 import { BsMusicNoteList, BsChevronLeft } from 'react-icons/bs';
 import { MdOutlinePlaylistRemove } from 'react-icons/md';
 
@@ -12,6 +13,7 @@ const Playlists = ({
   playSong
 }) => {
   const[isOpen, setIsOpen] = useState(false);
+  const[coverArtURL, setCoverArtURL] = useState({});
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -22,31 +24,21 @@ const Playlists = ({
     setIsOpen(false);
   };
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (selectedPlaylistSongs) {
       Object.entries(selectedPlaylistSongs).forEach(([artist, albums]) => {
-        console.log('Artist:', artist);
-        console.log('Albums:', albums);
-        Object.entries(albums).map(([albumKey, albumData]) => {
-          console.log('Album: ', albumData.name);
-          console.log('Cover: ', albumData.coverArt);
-          console.log('Songs: ', albumData.songs[0].trackNumber);
+        Object.entries(albums).forEach(([albumKey, albumData]) => {
+          console.log(artist, albumKey, albumData);
+          albumData.coverArt.then((url) => {
+            setCoverArtURL(prev => ({
+              ...prev,
+              [albumKey]: url
+            }));
+          });
         });
       });
     }
-  }, [selectedPlaylistSongs]);*/
-
-  /*const getMiniArt = async (track) => {
-    try {
-      const response = await fetch(`api/artwork/${selectedPlaylist}/${track}`);
-      if (response.ok) {
-        const coverURL = response.url;
-        return(coverURL);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  }*/
+  }, [selectedPlaylistSongs]);
 
   return (
     <div className='playlists-section'>
@@ -94,7 +86,7 @@ const Playlists = ({
                 <div key={albumKey}>
                   <div className='album-header'>
                     <div className='cover'>
-                      <img src={albumData.coverArt} alt="Album Cover" width={45} />
+                      <img src={coverArtURL[albumKey] || placeholderImg} alt={albumKey} width={45} />
                     </div>
                     <div className='title'>
                       <div className='artist-name'>{artist}</div>

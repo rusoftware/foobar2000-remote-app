@@ -6,8 +6,8 @@ import Playlists from './Playlists';
 import placeholderImg from './img/no-cover.jpeg';
 
 // TODOs:
-// - Playlists navigation, add coverart
 // - Explorer navigation, try to display album art and songs (parsed from the *.cue if necessary) inside each artist
+// - Listen to SSE from foobar keep the ui syncronized
 
 function App() {
   const [page, setPage] = useState('player');
@@ -72,7 +72,7 @@ function App() {
         setTracklistsSongs(data.playlistItems.items);
 
         const groupedData = [];
-        /*const getMiniArt = async (track) => {
+        const getMiniArt = async (track) => {
           try {
             const response = await fetch(`api/artwork/${selectedPlaylist}/${track}`);
             if (response.ok) {
@@ -82,7 +82,7 @@ function App() {
           } catch (error) {
             console.error('Error:', error);
           }
-        };*/
+        };
 
         data.playlistItems.items.forEach((item, index) => {
           const [artist, album, year, trackNumber, songName] = item.columns;
@@ -95,7 +95,7 @@ function App() {
 
           if (!groupedData[artist][albumKey]) {
             groupedData[artist][albumKey] = {
-              coverArt: placeholderImg, // TODO: getMiniArt(index): Implement getMiniArt in Playlists component
+              coverArt: getMiniArt(index), // promise URL that will be resolved asyncronically in the component
               name: album,
               year: year,
               songs: []
