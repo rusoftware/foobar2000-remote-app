@@ -28,7 +28,6 @@ const Playlists = ({
     if (selectedPlaylistSongs) {
       Object.entries(selectedPlaylistSongs).forEach(([artist, albums]) => {
         Object.entries(albums).forEach(([albumKey, albumData]) => {
-          console.log(artist, albumKey, albumData);
           albumData.coverArt.then((url) => {
             setCoverArtURL(prev => ({
               ...prev,
@@ -74,10 +73,6 @@ const Playlists = ({
         )}
       </div>
       <div className='playlists-container'>
-      <pre style={{
-        maxHeight: '100px',
-        overflowY: 'scroll'
-      }}>{JSON.stringify(selectedPlaylistSongs, null, 2)}</pre>
         {Object.entries(selectedPlaylistSongs).map(([artist, albums]) => (
           <div key={artist}>
             

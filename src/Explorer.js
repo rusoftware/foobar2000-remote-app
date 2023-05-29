@@ -78,7 +78,6 @@ const Explorer = ({
         {!isRoot &&
           <>
             <h2>Albums</h2>
-            <pre>{ currentPath }</pre>
             <FaArrowLeft onClick={handleUpClick} size={24} style={{marginTop: '.83em'}} />
 
             <ul className='artists-list'>
