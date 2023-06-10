@@ -4,6 +4,7 @@ import Explorer from './Explorer';
 import Tracklist from './Tracklist';
 import Playlists from './Playlists';
 import placeholderImg from './img/no-cover.jpeg';
+import EventSource from 'eventsource-polyfill';
 
 // TODOs:
 // - Explorer navigation, try to display album art and songs (parsed from the *.cue if necessary) inside each artist
@@ -328,6 +329,42 @@ function App() {
 
     fetchFolders();
   }, [currentPath, rootMusicPath]);
+
+  /* 
+  // WIP: SSE implementation
+  // Please take a look at this two endpoints
+  
+  useEffect(() => {
+    const params = {
+      player: true,
+      trcolumns: ['%artist% - %title%', '%artist% - %album% - %title%'],
+      playlists: true
+    };
+    
+    const queryString = new URLSearchParams(params).toString();
+    const source = new EventSource(`/api/query/events?${queryString}`);
+    const uppdates = new EventSource(`/api/query/updates?${queryString}`);
+
+    source.addEventListener('message', event => {
+      console.log('xx', JSON.stringify(event.data));
+    });
+
+    source.addEventListener('error', event => {
+      console.log('xx_error', JSON.stringify(event));
+    });
+
+    uppdates.addEventListener('message', event => {
+      console.log('updates', JSON.stringify(event.data));
+    });
+
+    */
+    
+
+    return () => {
+      source.close();
+    };
+    
+  }, []);
 
   return (
     <div className="container">
