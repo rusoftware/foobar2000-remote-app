@@ -8,7 +8,6 @@ import EventSource from 'eventsource-polyfill';
 
 // TODOs:
 // - Explorer navigation, try to display album art and songs (parsed from the *.cue if necessary) inside each artist
-// - Listen to SSE from foobar keep the ui syncronized
 
 function App() {
   const [page, setPage] = useState('player');
@@ -330,41 +329,39 @@ function App() {
     fetchFolders();
   }, [currentPath, rootMusicPath]);
 
-  /* 
-  // WIP: SSE implementation
-  // Please take a look at this two endpoints
-  
-  useEffect(() => {
+  useEffect(() => {
     const params = {
       player: true,
-      trcolumns: ['%artist% - %title%', '%artist% - %album% - %title%'],
-      playlists: true
+      playlists: true,
+      trcolumns: ['%artist%', '%album%', '%title%', '%year%', '%tracknumber%']
     };
-    
+  
     const queryString = new URLSearchParams(params).toString();
-    const source = new EventSource(`/api/query/events?${queryString}`);
-    const uppdates = new EventSource(`/api/query/updates?${queryString}`);
 
-    source.addEventListener('message', event => {
-      console.log('xx', JSON.stringify(event.data));
-    });
+    const creatingEventSources = async () => {
+      const updatesSource = new EventSource(`/api/query/updates?${queryString}`)
 
-    source.addEventListener('error', event => {
-      console.log('xx_error', JSON.stringify(event));
-    });
+      // api/query/events is the other endpoint to create eventSource, but there's no documentation at all
+      // const eventSource = new RNEventSource(`${apiUrl}/api/query/events?${queryString}`)
 
-    uppdates.addEventListener('message', event => {
-      console.log('updates', JSON.stringify(event.data));
-    });
+      const handleUpdatesMessage = update => {
+        const updateData = JSON.parse(update.data)
+        if (updateData && updateData.player && updateData.player.activeItem) {
+          drawSongInfo(updateData)
+          //handleVolume(updateData.player.volume)
+        }
+      }
 
-    */
-    
+      updatesSource.addEventListener('message', handleUpdatesMessage)
 
-    return () => {
-      source.close();
-    };
-    
-  }, []);
+      return () => {
+        updatesSource.removeAllListeners()
+        updatesSource.close()
+      };
+    }
+
+    creatingEventSources()
+  }, [])
 
   return (
     <div className="container">
